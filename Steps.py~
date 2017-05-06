@@ -125,7 +125,7 @@ class Step(QWidget):
 
 class LoopStep(Step):
     def __init__(self, root):
-        Step.__init__(self, root)
+        Step.__init__(self)
         self.HBox.insertWidget(2,Loop())
 
             
