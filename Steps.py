@@ -18,7 +18,7 @@ from PyQt5.QtCore import Qt
 
 class Step(QWidget):
     def __init__(self):
-        super().__init__()
+        QWidget.__init__(self)
         self.initUI()
 
     def initUI(self):
@@ -26,7 +26,7 @@ class Step(QWidget):
        
 class Loop(QWidget):
     def __init__(self):
-        super().__init__()
+        QWidget.__init__(self)
         self.number=0
         self.Steps=[]
         self.initUI()
@@ -82,7 +82,7 @@ class Loop(QWidget):
 
 class DummyStep(Step):
     def __init__(self, root):
-        super().__init__()
+        QWidget.__init__(self)
         self.root=root
         self.number=0
         self.HBox=QHBoxLayout(self)

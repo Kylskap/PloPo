@@ -26,8 +26,8 @@ class DirTreeWidget(QTreeWidget):
         ####self.config.read('config.cfg')
         #self.home = self.config.get('Section1','home_directory')        
         
-        self.file_icon = QIcon('ui\icons\File-64.png')
-        self.folder_icon = QIcon('ui\icons\Folder-64.png')
+        self.file_icon = QIcon(r'ui\icons\File-64.png')
+        self.folder_icon = QIcon(r'ui\icons\Folder-64.png')
         
         self.setAcceptDrops(True)
         
@@ -92,7 +92,7 @@ def main():
 
         # The QWidget widget is the base class of all user interface objects in PyQt5.    
     centralWidget = QWidget()
-    tree = DirTreeWidget(centralWidget,"C:\Users\ZechT\git")
+    tree = DirTreeWidget(centralWidget,r"C:\Users\ZechT\git")
     tree.setFixedSize(395,395)
     
 

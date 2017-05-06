@@ -13,9 +13,9 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import DirTreeWidget
+import ui.DirTreeWidget as DirTreeWidget
 
-import ConfigParser
+import configparser
 
 class MainFramework(QMainWindow):
     
@@ -23,7 +23,7 @@ class MainFramework(QMainWindow):
     def __init__(self,parent=None):
         QMainWindow.__init__(self, parent)        
         
-        self.config = ConfigParser.RawConfigParser()
+        self.config = configparser.RawConfigParser()
         self.config.read('config.cfg')
         self.home = self.config.get('dirs','home_directory')
        
@@ -114,19 +114,19 @@ class MainFramework(QMainWindow):
         self.anamode_box.insertSeparator(5)
         self.anamode_box.setCurrentIndex(1)
         
-        self.read_button = QPushButton(QIcon(self.home+'\ui\icons\Play-64.png'),'Play',self)
+        self.read_button = QPushButton(QIcon(self.home+r'\ui\icons\Play-64.png'),'Play',self)
         self.read_button.setMinimumSize(10,10)
         #self.read_button.clicked.connect(self.compute)
-        open_button = QPushButton(QIcon(self.home+'\ui\icons\Open-Folder-64.png'),'Open',self)
+        open_button = QPushButton(QIcon(self.home+r'\ui\icons\Open-Folder-64.png'),'Open',self)
         open_button.setMinimumSize(10,10)
         #self.open_button.clicked.connect(self.ask_WorkingDirectory)
-        save_button = QPushButton(QIcon(self.home+'\ui\icons\Save-64.png'),'Save',self)
+        save_button = QPushButton(QIcon(self.home+r'\ui\icons\Save-64.png'),'Save',self)
         save_button.setMinimumSize(10,10)
         #self.connect(save_button, SIGNAL('clicked()'),self.save)   
-        export_button = QPushButton(QIcon(self.home+'\ui\icons\Export-64.png'),'Export',self)
+        export_button = QPushButton(QIcon(self.home+r'\ui\icons\Export-64.png'),'Export',self)
         export_button.setMinimumSize(10,10)
         #self.connect(export_button, SIGNAL('clicked()'),self.export)    
-        import_button = QPushButton(QIcon(self.home+'\ui\icons\Import-64.png'),'Export',self)
+        import_button = QPushButton(QIcon(self.home+r'\ui\icons\Import-64.png'),'Export',self)
         import_button.setMinimumSize(10,10)
         #self.root.connect(self.anamode_box, SIGNAL('activated()'), self.set_AnaMode)
         #self.anamode_box.currentIndexChanged.connect(set_AnaMode)
@@ -158,7 +158,7 @@ class MainFramework(QMainWindow):
         self.deepinfodock.setObjectName("Data info")
         self.centerdock.setObjectName("center")
         
-        self.data_viewer = DirTreeWidget.DirTreeWidget(self,"C:\Users\ZechT\Downloads")
+        self.data_viewer = DirTreeWidget.DirTreeWidget(self,r"C:\Users\ZechT\Downloads")
         self.data_viewer.setMaximumWidth(350)
         self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.data_viewer.itemSelectionChanged.connect(self.load_Data)

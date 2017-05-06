@@ -4,14 +4,17 @@ Created on Mon Dec  7 14:33:12 2015
 
 @author: tobias
 """
-
-from ui import MainFramework
 #import ResonanceData
 
 import sys,os
+
+#sys.path.append(r'C:\Users\ZechT\git\PloPo')
+
 from PyQt5.QtWidgets import *
 
-import ConfigParser
+import ui.MainFramework as MainFramework
+
+import configparser
 
 def main():
     
@@ -30,9 +33,9 @@ def main():
         # when attempting to write to a file or when you get it in non-raw
         # mode. SafeConfigParser does not allow such assignments to take place.
         config.add_section('dirs')
-        config.set('dirs','home_directory', 'C:\Users\ZechT\git\PloPo_Init')
-        config.set('dirs', 'working_directory', 'C:\Users\ZechT\git\PloPo_Init')
-        config.set('dirs', 'saving_directory', 'C:\Users\ZechT\git\PloPo_Init')
+        config.set('dirs','home_directory',r'C:\Users\ZechT\git\PloPo_Init')
+        config.set('dirs','working_directory',r'C:\Users\ZechT\git\PloPo_Init')
+        config.set('dirs','saving_directory',r'C:\Users\ZechT\git\PloPo_Init')
         
         config.add_section('info')
         config.set('info', 'version', version)
