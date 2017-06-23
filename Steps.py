@@ -74,6 +74,7 @@ class Loop(QWidget):
             self.Steps.remove(Widget)
             del Widget
             self.numerateSteps()
+            self.adjustSize()
         else:
             pass
 
