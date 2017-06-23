@@ -14,6 +14,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 import ui.DirTreeWidget as DirTreeWidget
+import ui.Steps as Steps
 
 import configparser
 
@@ -36,9 +37,11 @@ class MainFramework(QMainWindow):
         self.saving_dir='' 
         self.dockiterator = 1
         
+        self.list_stepWindows = []
+        
         self.init_Menubar() 
         self.init_Gui() 
-        self.init_Toolbar()  
+        self.init_Toolbar()
         
         #self.dir_popup = AskWindow.AskWindow(self)
         #self.dir_popup.closed.connect(self.init_Data)
@@ -165,7 +168,10 @@ class MainFramework(QMainWindow):
         #self.connect(self.data_viewer, SIGNAL('itemSelectionChanged()'),self.load_Data)
         self.info_frame = QTextEdit(self)
         self.info_frame.setMaximumWidth(350)
-                      
+        
+        
+        self.list_stepWindows.append(Steps.Loop())
+        self.centerdock.setWidget(self.list_stepWindows[0])
         #self.set_Mode('Generic Analysis')   
 
         docktabwidget1.setWidget(self.data_viewer)

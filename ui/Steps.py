@@ -16,21 +16,13 @@ from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton, QHBox
 from PyQt5.QtCore import Qt
 
 
-#class Step(QWidget):
-#    def __init__(self,parent,name):
-#        QWidget.__init__(self)
-#        self.initUI()
-#        self.name = "Setup_1"
-#        self.parent = parent
-#        
-#    def setName(self,name):
-#        self.name = name
-#        
-#    def getName(self):
-#        return self.name
-#
-#    def initUI(self):
-#        pass
+class Step(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.initUI()
+
+    def initUI(self):
+        pass
        
 class Loop(QWidget):      
     def __init__(self):
@@ -88,11 +80,9 @@ class Loop(QWidget):
 
 
 class Step(QWidget):
-    def __init__(self,parent=None,name=None):
+    def __init__(self,root):
         QWidget.__init__(self)
-        self.initUI()
-        self.name = name
-        self.parent = parent
+        self.root = root
 
         self.number=0
         self.HBox=QHBoxLayout(self)
@@ -115,14 +105,7 @@ class Step(QWidget):
         self.HBox.addStretch()
         self.HBox.addWidget(self.AddStepButton)
         self.HBox.addWidget(self.AddLoopButton)
-        self.HBox.addWidget(self.RemoveButton)
-
-         
-    def setName(self,name):
-        self.name = name
-        
-    def getName(self):
-        return self.name   
+        self.HBox.addWidget(self.RemoveButton) 
 
     def addStep(self):
         self.root.addStep()
