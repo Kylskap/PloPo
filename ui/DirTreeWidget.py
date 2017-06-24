@@ -25,6 +25,7 @@ class DirTreeWidget(QTreeWidget):
         self.config.read(os.name+'_config.cfg')
         self.home = self.config.get('dirs','home_directory')
         self.icon_directory = self.config.get('dirs','icon_directory')
+        self.setHeaderLabel("Measurements")
         
         self.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.config = ConfigParser.RawConfigParser()
@@ -51,7 +52,7 @@ class DirTreeWidget(QTreeWidget):
         main_item = QTreeWidgetItem()
         main_item.setText(0,os.path.split(directory)[1])
         main_item.setIcon(0,self.folder_icon) 
-        main_item.setText(1,os.path.split(directory)[0])
+        #main_item.setText(1,os.path.split(directory)[0])
         self.addTopLevelItem(main_item)
         
         dict_temp = {}
