@@ -13,7 +13,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-#import ConfigParser
+import configparser
 
 class DirTreeWidget(QTreeWidget):
     
@@ -21,13 +21,18 @@ class DirTreeWidget(QTreeWidget):
         QTreeWidget.__init__(self)
         self.root = root
         
+        self.config = configparser.RawConfigParser()
+        self.config.read(os.name+'_config.cfg')
+        self.home = self.config.get('dirs','home_directory')
+        self.icon_directory = self.config.get('dirs','icon_directory')
+        
         self.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.config = ConfigParser.RawConfigParser()
         ####self.config.read('config.cfg')
         #self.home = self.config.get('Section1','home_directory')        
         
-        self.file_icon = QIcon(r'ui\icons\File-64.png')
-        self.folder_icon = QIcon(r'ui\icons\Folder-64.png')
+        self.file_icon = QIcon(self.home+self.icon_directory+'File-64.png')
+        self.folder_icon = QIcon(self.home+self.icon_directory+'Folder-64.png')
         
         self.setAcceptDrops(True)
         

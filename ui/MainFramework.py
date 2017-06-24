@@ -25,16 +25,18 @@ class MainFramework(QMainWindow):
         QMainWindow.__init__(self, parent)        
         
         self.config = configparser.RawConfigParser()
-        self.config.read('config.cfg')
+        self.config.read(os.name+'_config.cfg')
         self.home = self.config.get('dirs','home_directory')
+        self.icon_directory = self.config.get('dirs','icon_directory')
+        print(self.home)
        
         self.setMinimumSize(300,250)
         self.root = QWidget(self)        
         self.root.show()    
         
         self.tool_tab_dict = {}
-        self.working_dir=''
-        self.saving_dir='' 
+        self.working_dir=self.config.get('dirs','working_directory')
+        self.saving_dir=self.config.get('dirs','saving_directory')
         self.dockiterator = 1
         
         self.list_stepWindows = []
@@ -117,19 +119,19 @@ class MainFramework(QMainWindow):
         self.anamode_box.insertSeparator(5)
         self.anamode_box.setCurrentIndex(1)
         
-        self.read_button = QPushButton(QIcon(self.home+r'\ui\icons\Play-64.png'),'Play',self)
+        self.read_button = QPushButton(QIcon(self.home+self.icon_directory+'Play-64.png'),'Play',self)
         self.read_button.setMinimumSize(10,10)
         #self.read_button.clicked.connect(self.compute)
-        open_button = QPushButton(QIcon(self.home+r'\ui\icons\Open-Folder-64.png'),'Open',self)
+        open_button = QPushButton(QIcon(self.home+self.icon_directory+'Open-Folder-64.png'),'Open',self)
         open_button.setMinimumSize(10,10)
         #self.open_button.clicked.connect(self.ask_WorkingDirectory)
-        save_button = QPushButton(QIcon(self.home+r'\ui\icons\Save-64.png'),'Save',self)
+        save_button = QPushButton(QIcon(self.home+self.icon_directory+'Save-64.png'),'Save',self)
         save_button.setMinimumSize(10,10)
         #self.connect(save_button, SIGNAL('clicked()'),self.save)   
-        export_button = QPushButton(QIcon(self.home+r'\ui\icons\Export-64.png'),'Export',self)
+        export_button = QPushButton(QIcon(self.home+self.icon_directory+'Export-64.png'),'Export',self)
         export_button.setMinimumSize(10,10)
         #self.connect(export_button, SIGNAL('clicked()'),self.export)    
-        import_button = QPushButton(QIcon(self.home+r'\ui\icons\Import-64.png'),'Export',self)
+        import_button = QPushButton(QIcon(self.home+self.icon_directory+'Import-64.png'),'Export',self)
         import_button.setMinimumSize(10,10)
         #self.root.connect(self.anamode_box, SIGNAL('activated()'), self.set_AnaMode)
         #self.anamode_box.currentIndexChanged.connect(set_AnaMode)
@@ -149,40 +151,32 @@ class MainFramework(QMainWindow):
         self.addToolBar(self.toolbar)
         
     def init_Gui(self):
-        docktabwidget1 = QDockWidget("data")
-        docktabwidget2 = QDockWidget("info")
-        self.tooltabdock = QDockWidget("tools")
-        self.deepinfodock = QDockWidget("Data info")        
-        self.centerdock = QDockWidget("plots")
         
-        docktabwidget1.setObjectName("data")
-        docktabwidget2.setObjectName("info")
-        self.tooltabdock.setObjectName("tools")
-        self.deepinfodock.setObjectName("Data info")
-        self.centerdock.setObjectName("center")
-        
-        self.data_viewer = DirTreeWidget.DirTreeWidget(self,r"C:\Users\ZechT\Downloads")
-        self.data_viewer.setMaximumWidth(350)
-        self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
-        #self.data_viewer.itemSelectionChanged.connect(self.load_Data)
-        #self.connect(self.data_viewer, SIGNAL('itemSelectionChanged()'),self.load_Data)
-        self.info_frame = QTextEdit(self)
-        self.info_frame.setMaximumWidth(350)
-        
+        self.tooltabdock = QWidget()
+        self.tooltabdock.setAccessibleName("tools")  
         
         self.list_stepWindows.append(Steps.Loop())
-        self.centerdock.setWidget(self.list_stepWindows[0])
-        #self.set_Mode('Generic Analysis')   
-
-        docktabwidget1.setWidget(self.data_viewer)
-        docktabwidget2.setWidget(self.info_frame)
-        self.tooltabdock.setWidget(QWidget())
-        self.deepinfodock.setWidget(QWidget())        
+                
+        self.data_viewer = DirTreeWidget.DirTreeWidget(self,self.working_dir)
+        self.data_viewer.setAccessibleName("data")
+        self.data_viewer.setMaximumWidth(350)
+        self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
         
-        self.addDockWidget(Qt.LeftDockWidgetArea, docktabwidget1)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.tooltabdock)
-        self.addDockWidget(Qt.LeftDockWidgetArea, docktabwidget2)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.deepinfodock)
-        self.tabifyDockWidget(self.tooltabdock,docktabwidget1) 
-        self.tabifyDockWidget(self.deepinfodock,docktabwidget2)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.centerdock)
+        self.info_frame = QTextEdit(self)
+        self.info_frame.setAccessibleName("info")
+        self.info_frame.setMaximumWidth(350)      
+        
+        dockWidget = self.add_WidgettoDock(Qt.LeftDockWidgetArea, self.data_viewer)
+        dockWidget = self.add_WidgettoDock(Qt.LeftDockWidgetArea, self.tooltabdock)
+        dockWidget = self.add_WidgettoDock(Qt.LeftDockWidgetArea, self.info_frame,dockWidget)
+        
+        self.add_WidgettoDock(Qt.RightDockWidgetArea, self.list_stepWindows[0])
+        
+    def add_WidgettoDock(self,position,Widget,prevDock=None):
+        
+        dockWidget = QDockWidget(Widget.accessibleName())
+        dockWidget.setWidget(Widget)
+        self.addDockWidget(position,dockWidget)
+        if prevDock:
+            self.tabifyDockWidget(prevDock,dockWidget)
+        return dockWidget

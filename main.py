@@ -16,14 +16,8 @@ import ui.MainFramework as MainFramework
 
 import configparser
 
-def main():
-    
-    version = '0.1'###
-        #Create initial config when no config existing
-    
-    if not os.path.isfile("config.cfg"):
-        
-        config = ConfigParser.RawConfigParser()
+def write_config(name,ver):
+    config = configparser.RawConfigParser()
         
         # When adding sections or items, add them in the reverse order of
         # how you want them to be displayed in the actual file.
@@ -32,23 +26,36 @@ def main():
         # non-string values to keys internally, but will receive an error
         # when attempting to write to a file or when you get it in non-raw
         # mode. SafeConfigParser does not allow such assignments to take place.
-        config.add_section('dirs')
-        config.set('dirs','home_directory',r'C:\Users\ZechT\git\PloPo_Init')
-        config.set('dirs','working_directory',r'C:\Users\ZechT\git\PloPo_Init')
-        config.set('dirs','saving_directory',r'C:\Users\ZechT\git\PloPo_Init')
-        
-        config.add_section('info')
-        config.set('info', 'version', version)
-        config.set('info', 'name', 'PloPo')
-        config.set('info', 'description', 'Scientific data management and analysis interface with integrated plot generator.')
-        config.set('info', 'authors', 'MaPo, ToZe')
-        config.set('info', 'copyright', 'GnuCopyright Licence')
-        
-        # Writing our configuration file to 'example.cfg'
-        with open('config.cfg', 'wb') as configfile:
-            config.write(configfile)
-        
+    config.add_section('dirs')
     
+    config.set('dirs','home_directory',os.getcwd())
+    config.set('dirs','working_directory',os.path.expanduser('~'))
+    config.set('dirs','saving_directory',os.path.expanduser('~'))
+    if os.name=='nt':
+        config.set('dirs','icon_directory',r'\ui\icons'+'\\')
+    if os.name=='posix':
+        config.set('dirs','icon_directory','/ui/icons/')
+        
+       
+    config.add_section('info')
+    config.set('info', 'version', ver)
+    config.set('info', 'name', 'PloPo')
+    config.set('info', 'description', 'Scientific data management and analysis interface with integrated plot generator.')
+    config.set('info', 'authors', 'MaPo, ToZe')
+    config.set('info', 'copyright', 'GnuCopyright Licence')
+    
+    # Writing our configuration file to 'example.cfg'
+    with open(name, 'w') as configfile:
+        config.write(configfile)    
+
+def main():
+    
+    version = '0.1'###
+        #Create initial config when no config existing
+    
+    if not (os.path.isfile("nt_config.cfg") and os.name=='nt') or (os.path.isfile("posix_config.cfg") and os.name=='posix'):
+        write_config(os.name+'_config.cfg',version)
+           
         # Create an PyQT4 application object.
     a = QApplication(sys.argv)
 
