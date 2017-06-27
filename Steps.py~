@@ -16,14 +16,7 @@ from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton, QHBox
 from PyQt5.QtCore import Qt
 
 
-class Step(QWidget):
-    def __init__(self):
-        QWidget.__init__(self)
-        self.initUI()
 
-    def initUI(self):
-        pass
-       
 class Loop(QWidget):      
     def __init__(self):
         QWidget.__init__(self)
@@ -74,6 +67,8 @@ class Loop(QWidget):
             self.Steps.remove(Widget)
             del Widget
             self.numerateSteps()
+            self.adjustSize()
+            parent.adjustSize()
         else:
             pass
 
@@ -87,16 +82,20 @@ class Step(QWidget):
 
         self.NumberLabel=QLabel(str(len(root.Steps)+1))
 
-        self.StepLabel=QLabel('||kind of Step                                                   Step Body||')
+        self.StepLabel=QLabel('Abstract Step')
 
         self.AddStepButton=QPushButton('+')
         self.AddStepButton.clicked.connect(self.insertStep)
+        textWidth = self.AddStepButton.fontMetrics().boundingRect(self.AddStepButton.text()).width()
+        self.AddStepButton.setMaximumWidth(textWidth+15)
 
         self.AddLoopButton=QPushButton('add Loop')
         self.AddLoopButton.clicked.connect(self.insertLoop)
 
         self.RemoveButton=QPushButton('-')
         self.RemoveButton.clicked.connect(self.remove)
+        textWidth = self.RemoveButton.fontMetrics().boundingRect(self.RemoveButton.text()).width()
+        self.RemoveButton.setMaximumWidth(textWidth+15)
 	
         self.HBox.addWidget(self.NumberLabel)
         self.HBox.addWidget(self.StepLabel)
@@ -125,8 +124,9 @@ class Step(QWidget):
 
 class LoopStep(Step):
     def __init__(self, root):
-        Step.__init__(self)
+        Step.__init__(self, root)
         self.HBox.insertWidget(2,Loop())
+        self.StepLabel.setText('Loop')
 
             
 if __name__=='__main__':
