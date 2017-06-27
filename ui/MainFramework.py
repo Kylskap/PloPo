@@ -161,7 +161,7 @@ class MainFramework(QMainWindow):
         self.deepinfodock.setObjectName("Data info")
         self.centerdock.setObjectName("center")
         
-        self.data_viewer = DirTreeWidget.DirTreeWidget(self,r".__tesetcase/Testdaten")
+        self.data_viewer = DirTreeWidget.DirTreeWidget(self,"./__testcase/Testdaten")
         self.data_viewer.setMaximumWidth(350)
         self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.data_viewer.itemSelectionChanged.connect(self.load_Data)
