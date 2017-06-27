@@ -20,6 +20,7 @@ class DirTreeWidget(QTreeWidget):
     def __init__(self,root,directory=None):
         QTreeWidget.__init__(self)
         self.root = root
+        self.itemdir={}
         self.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.config = ConfigParser.RawConfigParser()
         ####self.config.read('config.cfg')

@@ -189,4 +189,4 @@ class MainFramework(QMainWindow):
 
     def do_routine(self):
         
-        routine(self)
+        routine()
