@@ -80,7 +80,8 @@ class DirTreeWidget(QTreeWidget):
     def dropEvent(self,e):
         for iUrl in e.mimeData().urls():
             print(iUrl.path())
-            self.addDirectory(iUrl.path().strip('/'))
+            #self.addDirectory(iUrl.path().strip('/'))
+            self.addDirectory(iUrl.path())
         
     def dragMoveEvent(self,e):
         pass

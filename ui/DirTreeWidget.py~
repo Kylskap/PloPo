@@ -36,11 +36,12 @@ class DirTreeWidget(QTreeWidget):
     
     def addDirectory(self,directory):
         
+        print(directory)
         list_dir = []
         for iItem in os.walk(directory):
             list_dir.append(iItem)
         
-        print(list_dir)
+        #print(list_dir)
         
         main_item = QTreeWidgetItem()
         main_item.setText(0,os.path.split(directory)[1])
