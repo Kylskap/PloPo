@@ -27,7 +27,7 @@ class MainFramework(QMainWindow):
         
         self.config = configparser.RawConfigParser()
         self.config.read('config.cfg')
-        self.home = self.config.get('dirs','home_directory')
+        self.home = './' #self.config.get('dirs','home_directory')
         self.setMinimumSize(300,250)
         self.root = QWidget(self)        
         self.root.show()    
@@ -117,10 +117,10 @@ class MainFramework(QMainWindow):
         self.anamode_box.insertSeparator(5)
         self.anamode_box.setCurrentIndex(1)
         
-        self.read_button = QPushButton(QIcon(self.home+r'\ui\icons\Play-64.png'),'Play',self)
+        self.read_button = QPushButton(QIcon(self.home+'ui/icons/Play-64.png'),'Play',self)
         self.read_button.setMinimumSize(10,10)
         self.read_button.clicked.connect(self.do_routine)
-        open_button = QPushButton(QIcon(self.home+r'\ui\icons\Open-Folder-64.png'),'Open',self)
+        open_button = QPushButton(QIcon(self.home+'ui\icons\Open-Folder-64.png'),'Open',self)
         open_button.setMinimumSize(10,10)
         #self.open_button.clicked.connect(self.ask_WorkingDirectory)
         save_button = QPushButton(QIcon(self.home+r'\ui\icons\Save-64.png'),'Save',self)
@@ -161,7 +161,7 @@ class MainFramework(QMainWindow):
         self.deepinfodock.setObjectName("Data info")
         self.centerdock.setObjectName("center")
         
-        self.data_viewer = DirTreeWidget.DirTreeWidget(self,"./__testcase")
+        self.data_viewer = DirTreeWidget.DirTreeWidget(self,"./__testcase/Testdaten")
         self.data_viewer.setMaximumWidth(350)
         self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
         #self.data_viewer.itemSelectionChanged.connect(self.load_Data)

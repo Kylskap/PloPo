@@ -35,13 +35,13 @@ class DirTreeWidget(QTreeWidget):
         self.show()    
     
     def addDirectory(self,directory):
-        
+        self.clear()
+        self.directory=directory
         print(directory)
         list_dir = []
         for iItem in os.walk(directory):
             list_dir.append(iItem)
         
-        #print(list_dir)
         
         main_item = QTreeWidgetItem()
         main_item.setText(0,os.path.split(directory)[1])
@@ -65,6 +65,7 @@ class DirTreeWidget(QTreeWidget):
                 item.setText(0,iFile)
                 item.setIcon(0,self.file_icon)
                 dict_temp[iItem[0]].addChild(item)
+        print(dict_temp)
                 
         del dict_temp
                 
@@ -85,7 +86,22 @@ class DirTreeWidget(QTreeWidget):
         
     def dragMoveEvent(self,e):
         pass
-    
+
+    def get_ItemPath(self,item):
+        path=item.text(0)
+        parent=item.parent()
+        while(hasattr(parent.parent(),'text')):
+            path=parent.text(0)+'/'+path
+            parent=parent.parent()
+        path=self.directory+'/'+path
+        return(path)
+
+    def get_selectedPaths(self):
+        selected=self.selectedItems()
+        paths=[]
+        for i in range(len(selected)):
+            paths.append(self.get_ItemPath(selected[i]))
+        return(paths)
     
 def main():
         # Create an PyQT5 application object.

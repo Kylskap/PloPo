@@ -1,11 +1,12 @@
 import os 
 import numpy as np
+from PyQt5.QtWidgets import *
 
 
 class routine:
     def __init__(self,root):
         self.root=root
-        for root,dirs,files in os.walk('./__testcase/Testdaten'):
-            for file in files:
-                print(os.path.join(root, file))
-
+        selected=root.data_viewer.selectedItems()
+        for i in range(len(selected)):
+            print(root.data_viewer.get_ItemPath(selected[i]))
+            
