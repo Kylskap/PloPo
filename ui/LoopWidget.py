@@ -16,23 +16,15 @@ from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton, QHBox
 from PyQt5.QtCore import Qt
 
 
-#class Step(QWidget):
-#    def __init__(self,parent,name):
-#        QWidget.__init__(self)
-#        self.initUI()
-#        self.name = "Setup_1"
-#        self.parent = parent
-#        
-#    def setName(self,name):
-#        self.name = name
-#        
-#    def getName(self):
-#        return self.name
-#
-#    def initUI(self):
-#        pass
+class Step(QWidget):
+    def __init__(self):
+        QWidget.__init__(self)
+        self.initUI()
+
+    def initUI(self):
+        pass
        
-class Loop(QWidget):      
+class Loop(QWidget):
     def __init__(self):
         QWidget.__init__(self)
         self.number=0
@@ -47,25 +39,30 @@ class Loop(QWidget):
         self.StepBox=QVBoxLayout()
         self.StepBox.setSpacing(0)
         self.MainHBox.addLayout(self.StepBox)
-        self.addStep()
+        self.addDummyStep()
         self.StepBox.addStretch()
         
         self.setWindowTitle('Loop')
         self.show()
 
-    def addStep(self):
-        newStep=Step(self)
-        self.StepBox.addWidget(newStep)
-        self.Steps.append(newStep)
+    def addDummyStep(self):
+        Step=DummyStep(self)
+        self.StepBox.addWidget(Step)
+        self.Steps.append(Step)
 
     def insertStep(self,number):
-        newStep=Step(self)
-        self.StepBox.insertWidget(number,newStep)
-        self.Steps.insert(number,newStep)
+        Step=DummyStep(self)
+        self.StepBox.insertWidget(number,Step)
+        self.Steps.insert(number,Step)
         self.numerateSteps()
 
+    def addDummyLoop(self):
+        DummyLoop=Loop()
+        self.StepBox.addWidget(DummyLoop)
+        self.Steps.append(DummyLoop)
+
     def insertLoop(self,number):
-        ILoop=LoopStep(self)
+        ILoop=Loop()
         self.StepBox.insertWidget(number,ILoop)
         self.Steps.insert(number,ILoop)
         self.numerateSteps()
@@ -76,56 +73,41 @@ class Loop(QWidget):
             self.Steps[i].NumberLabel.setText(str(i+1))
 
     def removeWidget(self,Widget):
-        if len(self.Steps)>1:
-            self.StepBox.removeWidget(Widget)
-            Widget.hide()
-            self.Steps.remove(Widget)
-            del Widget
-            self.numerateSteps()
-            self.adjustSize()
-        else:
-            pass
+        self.StepBox.removeWidget(Widget)
+        Widget.hide()
+        self.Steps.remove(Widget)
+        del Widget
+        self.numerateSteps()
 
 
-class Step(QWidget):
-    def __init__(self,parent=None,name=None):
+class DummyStep(Step):
+    def __init__(self, root):
         QWidget.__init__(self)
-        self.initUI()
-        self.name = name
-        self.parent = parent
-
+        self.root=root
         self.number=0
         self.HBox=QHBoxLayout(self)
 
         self.NumberLabel=QLabel(str(len(root.Steps)+1))
 
-        self.StepLabel=QLabel('||kind of Step                                                   Step Body||')
-
-        self.AddStepButton=QPushButton('+')
+        self.AddStepButton=QPushButton('add Step')
         self.AddStepButton.clicked.connect(self.insertStep)
 
         self.AddLoopButton=QPushButton('add Loop')
         self.AddLoopButton.clicked.connect(self.insertLoop)
 
-        self.RemoveButton=QPushButton('-')
+        self.RemoveButton=QPushButton('remove')
         self.RemoveButton.clicked.connect(self.remove)
 	
         self.HBox.addWidget(self.NumberLabel)
-        self.HBox.addWidget(self.StepLabel)
         self.HBox.addStretch()
         self.HBox.addWidget(self.AddStepButton)
         self.HBox.addWidget(self.AddLoopButton)
         self.HBox.addWidget(self.RemoveButton)
 
-         
-    def setName(self,name):
-        self.name = name
-        
-    def getName(self):
-        return self.name   
+    
 
     def addStep(self):
-        self.root.addStep()
+        self.root.addDummyStep()
 
     def insertStep(self):
         self.root.insertStep(self.number)
@@ -138,13 +120,6 @@ class Step(QWidget):
         
     def remove(self):
         self.root.removeWidget(self)
-        del self
-
-class LoopStep(Step):
-    def __init__(self, root):
-        Step.__init__(self, root)
-        self.HBox.insertWidget(2,Loop())
-
             
 if __name__=='__main__':
     

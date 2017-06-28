@@ -13,25 +13,20 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import configparser
+#import ConfigParser
 
 class DirTreeWidget(QTreeWidget):
     
     def __init__(self,root,directory=None):
         QTreeWidget.__init__(self)
         self.root = root
+        self.setSelectionMode(QAbstractItemView.MultiSelection)
+        #self.config = ConfigParser.RawConfigParser()
+        ####self.config.read('config.cfg')
+        #self.home = self.config.get('Section1','home_directory')        
         
-        self.pathFromItem_dict = {}
-        
-        self.config = configparser.RawConfigParser()
-        self.config.read(os.name+'_config.cfg')
-        self.home = self.config.get('dirs','home_directory')
-        self.icon_directory = self.config.get('dirs','icon_directory')
-        self.setHeaderLabel("Measurements")
-        
-        self.file_icon = QIcon(self.home+self.icon_directory+'File-64.png')
-        self.folder_icon = QIcon(self.home+self.icon_directory+'Folder-64.png')
-
+        self.file_icon = QIcon('./ui/icons/File-64.png')
+        self.folder_icon = QIcon('./ui/icons/Folder-64.png')
         
         self.setAcceptDrops(True)
         
@@ -40,8 +35,8 @@ class DirTreeWidget(QTreeWidget):
         self.show()    
     
     def addDirectory(self,directory):
-        #self.clear()
         self.directory=directory
+        print(directory)
         list_dir = []
         for iItem in os.walk(directory):
             list_dir.append(iItem)
@@ -50,7 +45,7 @@ class DirTreeWidget(QTreeWidget):
         main_item = QTreeWidgetItem()
         main_item.setText(0,os.path.split(directory)[1])
         main_item.setIcon(0,self.folder_icon) 
-        #main_item.setText(1,os.path.split(directory)[0])
+        main_item.setText(1,os.path.split(directory)[0])
         self.addTopLevelItem(main_item)
         
         dict_temp = {}
@@ -60,7 +55,6 @@ class DirTreeWidget(QTreeWidget):
         for iItem in list_dir:
             for iFolder in iItem[1]:
                 item = QTreeWidgetItem()
-                item.path = os.path.join(iItem[0],iFolder)
                 item.setText(0,iFolder)
                 item.setIcon(0,self.folder_icon)
                 dict_temp[os.path.join(iItem[0],iFolder)]=item
@@ -70,8 +64,8 @@ class DirTreeWidget(QTreeWidget):
                 item.setText(0,iFile)
                 item.setIcon(0,self.file_icon)
                 dict_temp[iItem[0]].addChild(item)
-                item.path=os.path.join(iItem[0],iFile)
-
+        print(dict_temp)
+                
         del dict_temp
                 
 
@@ -86,10 +80,8 @@ class DirTreeWidget(QTreeWidget):
     def dropEvent(self,e):
         for iUrl in e.mimeData().urls():
             print(iUrl.path())
-            if os.name == 'nt':
-                self.addDirectory(iUrl.path().strip('/'))
-            else:
-                self.addDirectory(iUrl.path())
+            #self.addDirectory(iUrl.path().strip('/'))
+            self.addDirectory(iUrl.path())
         
     def dragMoveEvent(self,e):
         pass
@@ -107,7 +99,7 @@ class DirTreeWidget(QTreeWidget):
         selected=self.selectedItems()
         paths=[]
         for i in range(len(selected)):
-            paths.append(selected[i].path)
+            paths.append(self.get_ItemPath(selected[i]))
         return(paths)
     
 def main():

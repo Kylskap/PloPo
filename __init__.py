@@ -10,4 +10,6 @@ import ui as ui
 import main as main
 import management as management
 import methods as methods
+import function as function
+import handler as handler
 

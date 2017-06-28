@@ -1,0 +1,12 @@
+import os 
+import numpy as np
+from PyQt5.QtWidgets import *
+
+
+class routine:
+    def __init__(self,root):
+        self.root=root
+        selected=root.data_viewer.selectedItems()
+        for i in range(len(selected)):
+            print(root.data_viewer.get_ItemPath(selected[i]))
+            

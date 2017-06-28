@@ -26,18 +26,15 @@ class MainFramework(QMainWindow):
         QMainWindow.__init__(self, parent)        
         
         self.config = configparser.RawConfigParser()
-        self.config.read(os.name+'_config.cfg')
-        self.home = self.config.get('dirs','home_directory')
-        self.icon_directory = self.config.get('dirs','icon_directory')
-        print(self.home)
-
+        self.config.read('config.cfg')
+        self.home = './' #self.config.get('dirs','home_directory')
         self.setMinimumSize(300,250)
         self.root = QWidget(self)        
         self.root.show()    
         
         self.tool_tab_dict = {}
-        self.working_dir=self.config.get('dirs','working_directory')
-        self.saving_dir=self.config.get('dirs','saving_directory')
+        self.working_dir=''
+        self.saving_dir='' 
         self.dockiterator = 1
         
         self.list_stepWindows = []
@@ -86,24 +83,13 @@ class MainFramework(QMainWindow):
         
     def add_MenuAction(self, menu, actionString, function, shortcut = '', statusTip = ''):
         
-        newAction = QAction(actionString,menu)
+        newAction = QAction(  actionString, menu)
         newAction.setShortcut( shortcut )
         newAction.setStatusTip( statusTip ) 
         newAction.triggered.connect(function)
         #self.connect( newAction, SIGNAL('triggered()'), function )
         
         return newAction
-    
-    def add_MenuButton(self, toolbar, icon, function=None, tooltip=None):
-        
-        button = QPushButton(icon,'',parent=self)
-        button.setMinimumSize(20,20)
-        if tooltip:
-            button.setToolTip(tooltip)
-        if function:
-            button.clicked.connect(function)
-        toolbar.addWidget(button)
-        
     
     def init_Toolbar(self):
         
@@ -130,24 +116,32 @@ class MainFramework(QMainWindow):
         self.anamode_box.addItem('  modesplit analysis')
         self.anamode_box.insertSeparator(5)
         self.anamode_box.setCurrentIndex(1)
-       
-        # open button
-        self.add_MenuButton(self.toolbar,QIcon(self.home+self.icon_directory+'Open-Folder-64.png'),tooltip='Open')
-        # save button
-        self.add_MenuButton(self.toolbar,QIcon(self.home+self.icon_directory+'Save-64.png'),tooltip='Save')
-        # Export button
-        self.add_MenuButton(self.toolbar,QIcon(self.home+self.icon_directory+'Export-64.png'),tooltip='Export')
-        # import button
-        self.add_MenuButton(self.toolbar,QIcon(self.home+self.icon_directory+'Import-64.png'),tooltip='Import')
-
+        
+        self.read_button = QPushButton(QIcon(self.home+'ui/icons/Play-64.png'),'Play',self)
+        self.read_button.setMinimumSize(10,10)
+        self.read_button.clicked.connect(self.do_routine)
+        open_button = QPushButton(QIcon(self.home+'ui\icons\Open-Folder-64.png'),'Open',self)
+        open_button.setMinimumSize(10,10)
+        #self.open_button.clicked.connect(self.ask_WorkingDirectory)
+        save_button = QPushButton(QIcon(self.home+r'\ui\icons\Save-64.png'),'Save',self)
+        save_button.setMinimumSize(10,10)
+        #self.connect(save_button, SIGNAL('clicked()'),self.save)   
+        export_button = QPushButton(QIcon(self.home+r'\ui\icons\Export-64.png'),'Export',self)
+        export_button.setMinimumSize(10,10)
+        #self.connect(export_button, SIGNAL('clicked()'),self.export)    
+        import_button = QPushButton(QIcon(self.home+r'\ui\icons\Import-64.png'),'Export',self)
+        import_button.setMinimumSize(10,10)
         #self.root.connect(self.anamode_box, SIGNAL('activated()'), self.set_AnaMode)
         #self.anamode_box.currentIndexChanged.connect(set_AnaMode)
         #self.root.connect(self.anamode_box,SIGNAL('currentIndexChanged(int)'),set_AnaMode)
         self.label_directory = QLabel(self.working_dir)
+        self.toolbar.addWidget(open_button)
+        self.toolbar.addWidget(save_button)
+        self.toolbar.addWidget(export_button)
+        self.toolbar.addWidget(import_button)
         self.toolbar.addSeparator()
-        self.toolbar.addWidget(self.anamode_box) 
-        # read button
-        self.add_MenuButton(self.toolbar,QIcon(self.home+self.icon_directory+'Play-64.png'),tooltip='Play',function=self.do_routine)
+        self.toolbar.addWidget(self.anamode_box)
+        self.toolbar.addWidget(self.read_button)
         self.toolbar.addSeparator()
         self.toolbar.addWidget(self.label_directory)
         
@@ -155,40 +149,44 @@ class MainFramework(QMainWindow):
         self.addToolBar(self.toolbar)
         
     def init_Gui(self):
+        docktabwidget1 = QDockWidget("data")
+        docktabwidget2 = QDockWidget("info")
+        self.tooltabdock = QDockWidget("tools")
+        self.deepinfodock = QDockWidget("Data info")        
+        self.centerdock = QDockWidget("plots")
         
-        self.tooltabdock = QWidget()
-        self.tooltabdock.setAccessibleName("tools")  
+        docktabwidget1.setObjectName("data")
+        docktabwidget2.setObjectName("info")
+        self.tooltabdock.setObjectName("tools")
+        self.deepinfodock.setObjectName("Data info")
+        self.centerdock.setObjectName("center")
+        
+        self.data_viewer = DirTreeWidget.DirTreeWidget(self,"./__testcase/Testdaten")
+        self.data_viewer.setMaximumWidth(350)
+        self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
+        #self.data_viewer.itemSelectionChanged.connect(self.load_Data)
+        #self.connect(self.data_viewer, SIGNAL('itemSelectionChanged()'),self.load_Data)
+        self.info_frame = QTextEdit(self)
+        self.info_frame.setMaximumWidth(350)
+        
         
         self.list_stepWindows.append(Steps.Loop())
-                
-        self.data_viewer = DirTreeWidget.DirTreeWidget(self,self.working_dir)
-        self.data_viewer.setAccessibleName("data")
-        self.data_viewer.setMinimumSize(50,50)
+        self.centerdock.setWidget(self.list_stepWindows[0])
+        #self.set_Mode('Generic Analysis')   
 
-        self.data_viewer.setSelectionMode(QAbstractItemView.MultiSelection)
+        docktabwidget1.setWidget(self.data_viewer)
+        docktabwidget2.setWidget(self.info_frame)
+        self.tooltabdock.setWidget(QWidget())
+        self.deepinfodock.setWidget(QWidget())        
         
-        self.info_frame = QTextEdit(self)
-        self.info_frame.setAccessibleName("info")
-        self.info_frame.setMinimumSize(50,50)      
-        
-        dockWidget = self.add_WidgettoDock(Qt.LeftDockWidgetArea, self.data_viewer,size=QSize(500,500))
-        dockWidget = self.add_WidgettoDock(Qt.LeftDockWidgetArea, self.tooltabdock,size=QSize(500,500))
-        dockWidget = self.add_WidgettoDock(Qt.LeftDockWidgetArea, self.info_frame,dockWidget,size=QSize(500,500))
-        
-        self.add_WidgettoDock(Qt.RightDockWidgetArea, self.list_stepWindows[0])
-        
-    def add_WidgettoDock(self,position,Widget,prevDock=None,size=None):
-        
-        dockWidget = QDockWidget(Widget.accessibleName())
-        dockWidget.setWidget(Widget)
-        self.addDockWidget(position,dockWidget)
-        if size:
-            dockWidget.setMaximumSize(size)
-        if prevDock:
-            self.tabifyDockWidget(prevDock,dockWidget)
-        return dockWidget
-        
+        self.addDockWidget(Qt.LeftDockWidgetArea, docktabwidget1)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.tooltabdock)
+        self.addDockWidget(Qt.LeftDockWidgetArea, docktabwidget2)
+        self.addDockWidget(Qt.LeftDockWidgetArea, self.deepinfodock)
+        self.tabifyDockWidget(self.tooltabdock,docktabwidget1) 
+        self.tabifyDockWidget(self.deepinfodock,docktabwidget2)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.centerdock)
 
-    def do_routine(self):        
-        list_data = routine(self)
+    def do_routine(self):
         
+        routine(self)
