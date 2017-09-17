@@ -170,7 +170,7 @@ class MainFramework(QMainWindow):
         self.info_frame.setMaximumWidth(350)
         
         
-        self.list_stepWindows.append(Steps.Loop())
+        self.list_stepWindows.append(Steps.MainLoop(root=self))
         self.centerdock.setWidget(self.list_stepWindows[0])
         #self.set_Mode('Generic Analysis')   
 

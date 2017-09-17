@@ -3,7 +3,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 
-class datload:
+class datLoad:
     def __init__(self,dirpath):
         self.dirpath=dirpath
         self.data={}
@@ -60,12 +60,12 @@ class datload:
                     self.data[self.headerList[j]].append(float(idataList[j]))
         for header in self.data:
             self.data[header]=np.array(self.data[header])
-        print('headerList:',self.headerList)
-        print('data:',self.data)
+        #print('headerList:',self.headerList)
+        #print('data:',self.data)
 
 def main():
     dirpath = 'Testdaten/testdata4.dat'
-    datloadObject=datload(dirpath)
+    datloadObject=datLoad(dirpath)
     
 
 if __name__ == "__main__":

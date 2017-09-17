@@ -1,8 +1,15 @@
+import handler.datLoad as datLoad
+import numpy as np
+import matplotlib.pyplot as plt
+
+
 class choose_function:
-    def __init__(self,routine,step):
-        self.routine=routine
+    def __init__(self,step):
+
         self.step=step
-    def function(self):
+    def function(self,routine):
+        print(self)
+        self.routine=routine
         print('Testfunktion von',self.step)
 
 
@@ -12,56 +19,46 @@ class Loop: # Schleife über - Liste, pandas, dict...
 # macht eigentlich das gleiche, wie routine, es könnte aber nützlich sein, routine immer als namespace zu benutzen, um Variablennamen sinnvoll zu nutzen.
 
 
-    def __init__(self,routine,step):
-        self.routine=routine
+    def __init__(self,step):
+
         self.step=step
 
-    def function(self):
-        for step_i in self.step.Loop.Steps:
-             step_i.function(self.routine,step_i).function()
+    def function(self,routine):
+        self.routine=routine
+        print(self.routine.Datasets['Dataset1'])
+        for data_i in self.routine.Datasets['Dataset1']:
+            print('data_i',data_i)
+            for step_i in self.step.Loop.Steps:
+                 step_i.function.function(self.routine)
 
 class create_Array_Variable:
-    def __init__(self,routine,step):
-        self.routine=routine
-        self.step=step
-    def function(self):
-        print('Not implemented so far')
-        #self.ArgumentDict={'Variable Name':'str'}
-        #setattr(self.routine,self.step)
+    def __init__(self,step):
 
-class fit_Function:
-    def __init__(self,routine,step):
-        self.routine=routine
         self.step=step
-    def function(self):
-        print('Not implemented so far')
+        self.ArgumentList=[['Variable_Name','str'],['Column','Columnname']] ## List in order to keep ordering
+    def function(self,routine):
+        self.routine=routine
+        print(datLoad.datLoad(self.step.MainLoop.Datasets['Dataset1'][0]).data[self.step.Column_Combo.currentText()])
+        
+        setattr(self.routine,self.step.Variable_Name_Edit.text(),np.array(datLoad.datLoad(self.step.MainLoop.Datasets['Dataset1'][0]).data[self.step.Column_Combo.currentText()]))
+        #print(getattr(self.step,'Variable_Name_Edit').currentText(),getattr(self.routine,getattr(self.step,'Variable_Name_Edit').text()))
+       
+
 
 class Plot:
-    def __init__(self,routine,step):
-        self.routine=routine
+    def __init__(self,step):
         self.step=step
-    def function(self):
+        self.ArgumentList=[['X_Var','str'],['Y_Var','str']]
+
+    def function(self,routine):
+        self.routine=routine
+        plt.plot(getattr(self.routine,self.step.X_Var_Edit.text()),getattr(self.routine,self.step.Y_Var_Edit.text()))
+        plt.show()
+
+class fit_Function:
+    def __init__(self,step):
+        self.step=step
+    def function(self,routine):
+        self.routine=routine
         print('Not implemented so far')
 
-class show_Figure:
-    def __init__(self,routine,step):
-        self.routine=routine
-        self.step=step
-    def function(self):
-        print('Not implemented so far')
-
-class save_Figure:
-    def __init__(self,routine,step):
-        self.routine=routine
-        self.step=step
-    def function(self):
-        print('Not implemented so far')
-
-class seve_txt:
-    def __init__(self,routine,step):
-        self.routine=routine
-        self.step=step
-    def function(self):
-        print('Not implemented so far')
-        
-        

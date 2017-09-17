@@ -11,16 +11,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import PyQt5
-from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QComboBox
+from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QLineEdit
 
 from PyQt5.QtCore import Qt
 import function.step_functions as step_functions
-
+import handler.datLoad as datLoad
 
 
 
 class Loop(QWidget):      
-    def __init__(self,root=None):
+    def __init__(self,root):
         QWidget.__init__(self)
         self.root=root
         self.number=0
@@ -42,6 +42,7 @@ class Loop(QWidget):
         self.setWindowTitle('Loop')
         self.show()
 
+
     def addStep(self):
         newStep=ReplaceStep(self)
         self.StepBox.addWidget(newStep)
@@ -58,7 +59,7 @@ class Loop(QWidget):
         if KindOfStep+'Step' in sys.modules[__name__].__dict__:
             newStep=sys.modules[__name__].__dict__[KindOfStep+'Step'](self)
         else:
-            newStep=AbstractStep(self,KindOfStep)
+            newStep=AbstractStep(self, KindOfStep)
         self.StepBox.insertWidget(number,newStep)
         self.Steps.insert(number,newStep)
         self.removeWidget(OldStep)
@@ -89,13 +90,40 @@ class Loop(QWidget):
         else:
             pass
 
+class MainLoop(Loop): ## like Loop but containing Lists with all usable Datasets, Lists, Variables, 
+    def __init__(self, root=None):
+        Loop.__init__(self,root)
+        self.MainLoop=self
+        print('MainLoop initialized')
+        self.renewLists()
+
+    def renewLists(self):
+        self.Datasets={}
+        self.Datasets['Dataset1']=self.root.data_viewer.get_selectedPaths() ## so far only one data viewer, there will be some changes when more datasets are implemented
+        #self.C ## TODO: set choice of column names
+        print(self.Datasets)
+        for Step_i in self.Steps:
+            Step_i.renew()
+        
+    def mousePressEvent(self,e):
+         self.renewLists()
+    def mouseReleaseEvent(self,e):
+         self.renewLists()
+
 
 class Step(QWidget):
     def __init__(self, root):
         QWidget.__init__(self)
         self.root=root
+        checkroot=self.root
+        while(True):
+             if str(type(checkroot))=='<class \'ui.Steps.MainLoop\'>':
+                 self.MainLoop=checkroot
+                 break
+             else:
+                 checkroot=checkroot.root
         self.number=0
-        self.function=step_functions.choose_function
+        self.function=step_functions.choose_function(self)
 
 
         self.HBox=QHBoxLayout(self)
@@ -118,9 +146,7 @@ class Step(QWidget):
         self.HBox.addWidget(self.StepLabel)
         self.HBox.addStretch()
         self.HBox.addWidget(self.AddStepButton)
-        self.HBox.addWidget(self.AddLoopButton)
         self.HBox.addWidget(self.RemoveButton)
-
     
 
     def addStep(self):
@@ -136,14 +162,26 @@ class Step(QWidget):
         self.root.removeWidget(self)
         del self
 
+    def renew(self):
+        pass
+
 class LoopStep(Step):
     def __init__(self, root):
         Step.__init__(self, root)
-        self.function=step_functions.Loop
-        
-        self.Loop=Loop(root=root)
+        self.function=step_functions.Loop        
+        self.Loop=Loop(root)
         self.HBox.insertWidget(2,self.Loop)
-        self.StepLabel.setText('Loop')
+        self.StepLabel.setText('Loop over')
+        self.WhichLoop=QComboBox()
+        self.HBox.insertWidget(2,self.WhichLoop)
+        print(type(self))
+        self.WhichLoop.addItems(list(self.MainLoop.Datasets.keys())) # TODO Dataset1 should be replaced with the names of all Datasets, when there are more
+    def renew(self):
+        self.WhichLoop.clear()
+        self.WhichLoop.addItems(list(self.MainLoop.Datasets.keys()))
+        for step_i in self.Loop.Steps:
+            step_i.renew()
+
 
 class ReplaceStep(Step):
     def __init__(self, root):
@@ -163,11 +201,27 @@ class ReplaceStep(Step):
         self.root.replaceStep(self,self.number,self.MenuButton.currentText())
 
 class AbstractStep(Step):
-    def __init__(self, root,KindOfStep):
+    def __init__(self, root, KindOfStep):
         Step.__init__(self, root)
         self.KindOfStep=KindOfStep
         self.StepLabel.setText(self.KindOfStep)
-        self.function=step_functions.__dict__[self.KindOfStep]
+        self.function=step_functions.__dict__[self.KindOfStep](self)
+
+        for Arg in self.function.ArgumentList[::-1]:
+            if Arg[1]=='str':
+                setattr(self,Arg[0]+'_Edit',QLineEdit())
+                self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Edit'))
+                setattr(self,Arg[0]+'_Label',QLabel(Arg[0]))
+                self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Label'))
+
+            if Arg[1]=='Columnname':
+                setattr(self,Arg[0]+'_Combo',QComboBox())
+                if len(self.MainLoop.Datasets['Dataset1'])>0:
+                    Columnnames=datLoad.datLoad(self.MainLoop.Datasets['Dataset1'][0]).headerList ## TODO change such that more datasets are possible and check if all files have the same headers
+                    getattr(self,Arg[0]+'_Combo').addItems(Columnnames)
+                    self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Combo'))
+                setattr(self,Arg[0]+'_Label',QLabel(Arg[0]))
+                self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Label'))
 
 
             
