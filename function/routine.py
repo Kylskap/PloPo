@@ -6,5 +6,6 @@ from PyQt5.QtWidgets import *
 class routine:
     def __init__(self,parent):
         self.parent=parent
-        print(parent.data_viewer.get_selectedPaths())
+        for step in self.parent.list_stepWindows[0].Steps:
+             step.function(self,step).function() # die Funktionen sollen innerhalb der routine laufen und unabhaengig von der UI funktionieren.
             

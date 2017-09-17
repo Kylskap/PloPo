@@ -18,7 +18,7 @@ class Loop: # Schleife über - Liste, pandas, dict...
 
     def function(self):
         for step_i in self.step.Loop.Steps:
-             step_i.function(self.routine,step_i).function()
+             step_i.function(self.routine,step_i)
 
 class create_Array_Variable:
     def __init__(self,routine,step):

@@ -118,6 +118,7 @@ class Step(QWidget):
         self.HBox.addWidget(self.StepLabel)
         self.HBox.addStretch()
         self.HBox.addWidget(self.AddStepButton)
+        self.HBox.addWidget(self.AddLoopButton)
         self.HBox.addWidget(self.RemoveButton)
 
     

@@ -4,9 +4,8 @@ from PyQt5.QtWidgets import *
 
 
 class routine:
-    def __init__(self,root):
-        self.root=root
-        selected=root.data_viewer.selectedItems()
-        for i in range(len(selected)):
-            print(root.data_viewer.get_ItemPath(selected[i]))
+    def __init__(self,parent):
+        self.parent=parent
+        for step in self.parent.list_stepWindows[0].Steps:
+             step.function(self,step) # die Funktionen sollen innerhalb der routine laufen und unabhaengig von der UI funktionieren.
             
