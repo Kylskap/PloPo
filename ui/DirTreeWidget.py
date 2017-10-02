@@ -15,6 +15,9 @@ from PyQt5.QtWidgets import *
 
 import configparser
 
+import handler.DataItem as data
+import ui.AskHandler as AskHandler
+
 class DirTreeWidget(QTreeWidget):
     
     def __init__(self,root,directory=None):
@@ -22,6 +25,8 @@ class DirTreeWidget(QTreeWidget):
         self.root = root
         
         self.pathFromItem_dict = {}
+        self.data = {}
+        self.choices = []
         
         self.config = configparser.RawConfigParser()
         self.config.read(os.name+'_config.cfg')
@@ -35,8 +40,8 @@ class DirTreeWidget(QTreeWidget):
         
         self.setAcceptDrops(True)
         
-        if directory!=None:
-            self.addDirectory(directory)
+        #if directory!=None:
+        #    self.addDirectory(directory)
         self.show()    
     
     def addDirectory(self,directory):
@@ -51,12 +56,14 @@ class DirTreeWidget(QTreeWidget):
         main_item.setText(0,os.path.split(directory)[1])
         main_item.setIcon(0,self.folder_icon) 
         #main_item.setText(1,os.path.split(directory)[0])
-        self.addTopLevelItem(main_item)
+        
         
         dict_temp = {}
         
         dict_temp[directory] = main_item
         
+        type_dict = {}
+                 
         for iItem in list_dir:
             for iFolder in iItem[1]:
                 item = QTreeWidgetItem()
@@ -66,12 +73,26 @@ class DirTreeWidget(QTreeWidget):
                 dict_temp[os.path.join(iItem[0],iFolder)]=item
                 dict_temp[iItem[0]].addChild(item)
             for iFile in iItem[2]:
-                item = QTreeWidgetItem()
+                item = data.DataItem()
                 item.setText(0,iFile)
                 item.setIcon(0,self.file_icon)
                 dict_temp[iItem[0]].addChild(item)
+                name = iFile.split('.')
+                if name[-1] not in type_dict:
+                    type_dict[name[-1]] = []
+                type_dict[name[-1]].append(item)
                 item.path=os.path.join(iItem[0],iFile)
-
+        
+        print(type_dict.keys())
+        temp = AskHandler.AskHandler(self,type_dict.keys())
+        print(self.choices)
+        for i,iChoices in enumerate(self.choices):
+            for j,jData in enumerate(type_dict[iChoices]):
+                item = type_dict[jData]
+                item.handler = self.choices[iChoices]
+                self.data[jData.path] = item
+        
+        self.addTopLevelItem(main_item)
         del dict_temp
                 
 
