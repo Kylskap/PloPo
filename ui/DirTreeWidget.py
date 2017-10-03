@@ -26,13 +26,13 @@ class DirTreeWidget(QTreeWidget):
         
         self.pathFromItem_dict = {}
         self.data = {}
-        self.choices = []
+        self.choices = {}
         
         self.config = configparser.RawConfigParser()
         self.config.read(os.name+'_config.cfg')
         self.home = self.config.get('dirs','home_directory')
         self.icon_directory = self.config.get('dirs','icon_directory')
-        self.setHeaderLabel("Measurements")
+        self.setHeaderLabel("")
         
         self.file_icon = QIcon(self.home+self.icon_directory+'File-64.png')
         self.folder_icon = QIcon(self.home+self.icon_directory+'Folder-64.png')
@@ -83,19 +83,31 @@ class DirTreeWidget(QTreeWidget):
                 type_dict[name[-1]].append(item)
                 item.path=os.path.join(iItem[0],iFile)
         
-        print(type_dict.keys())
+        print(type_dict)
         temp = AskHandler.AskHandler(self,type_dict.keys())
+        #temp.send.connect(self.addChoices)
+        temp.exec()
+
         print(self.choices)
         for i,iChoices in enumerate(self.choices):
-            for j,jData in enumerate(type_dict[iChoices]):
-                item = type_dict[jData]
+            print(iChoices)
+            for jData in type_dict[iChoices]:
+                item = jData
                 item.handler = self.choices[iChoices]
-                self.data[jData.path] = item
-        
+                self.data[item.path] = item 
+                         
         self.addTopLevelItem(main_item)
+        self.choices = {}
         del dict_temp
+        
+        for iData in self.data:
+
+            self.data[iData].readData()
                 
 
+    #only used to get the handler types from askhandler, do not use in other circumstances, SLOT!!!!
+    def addChoices(self,choices):
+        self.choices=choices
         
         
     def dragEnterEvent(self,e):
@@ -137,6 +149,7 @@ def main():
 
         # The QWidget widget is the base class of all user interface objects in PyQt5.    
     centralWidget = QWidget()
+    os.chdir('../')
     tree = DirTreeWidget(centralWidget,r"../__testcase")
     tree.setFixedSize(395,395)
     

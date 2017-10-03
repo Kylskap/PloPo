@@ -14,6 +14,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 import configparser
+import handler.AbstractHandler as Handler
 
 class DataItem(QTreeWidgetItem):
     
@@ -22,6 +23,16 @@ class DataItem(QTreeWidgetItem):
         
         self.handler = None
         self.path = None
+        self.data = None
+        self.comment = None
         
     def dragMoveEvent(self,e):
         pass
+    
+    def readData(self):
+        if self.data is None:
+            print(self.path)
+            print(self.handler)
+            inst_handler = Handler.AbstractHandler(path=self.path,read_function=self.handler)
+            print(2)
+            self.data = inst_handler.readData()

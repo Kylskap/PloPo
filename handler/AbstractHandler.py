@@ -8,59 +8,47 @@ import sys, os
 
 import numpy as np
 
+import importlib
+
 from PyQt5.QtWidgets import *
 
 
 class AbstractHandler(QWidget):
     
-    def __init__(self,parent=None):
+    def __init__(self,parent=None,path=None,data=None,read_function=None,edit_function=None):
         QWidget.__init__(self)
         self.parent=parent
         
-        self.main_dir = None
-        self.data = None
-        self.read_function = None
-        self.edit_function = None
+        self.path = path
+        self.data = data
+        self.setReadFunction(read_function)
+        #self.edit_function = edit_function
         
     def setData(self,directory):
-        self.main_dir = directory
+        self.path = directory
         self.data = [dI for dI in os.listdir(directory) if os.path.isdir(os.path.join(directory,dI))]
         
     def exportData(self):
-        return self.main_dir,self.data
+        return self.path,self.data
     
-    def importData(self,main_dir,data):
-        self.main_dir = main_dir
+    def importData(self,path,data):
+        self.path = path
         self.data = data
         
-    def readData(self,dirs):
-        
-        if self.read_function==None:
-            return 0
-        
-        data = {}
-        if dirs==self.main_dir:
-            self.read_function(self.data)
-        elif np.asarray(dirs):
-            for iDir in dirs:
-                if os.path.isdir(iDir):
-                    data['iDir']=self.read_function(iDir)                    
+    def readData(self):
+        print(3)
+        data = self.read_function.reader(self.path)
+        print(4)
+                         
         return data
-        
-    def editData(self,Dir):
-        
-        if self.edit_function==None:
-            return 0
-        
-        if os.path.isdir(Dir):
-            self.edit_function(Dir)
-            
     
     def setEditFunction(self,function):
         self.edit_function = function    
         
     def setReadFunction(self,function):
-        self.read_function = function
+        print('X')
+        self.read_function=importlib.import_module('handler.reader.'+function+'_Reader')
+        
 
         
         
@@ -68,7 +56,7 @@ class AbstractHandler(QWidget):
 def main():
         # Create an PyQT5 application object.
     a = QApplication(sys.argv)
-
+    os.chdir('../')
         # The QWidget widget is the base class of all user interface objects in PyQt5.    
     c = QWidget()
     w = AbstractHandler(c)

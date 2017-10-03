@@ -22,32 +22,38 @@ class AskHandler(QDialog):
         self.root = root        
         self.closed = PyQt5.QtCore.pyqtSignal
         self.setModal(True)
+        
+        self.send = PyQt5.QtCore.pyqtSignal(dict)
 
         self.config = configparser.RawConfigParser()
         self.config.read(os.name+'_config.cfg')
         self.home = self.config.get('dirs','home_directory')
         
-        self.handlers = ['auto','sasdata','temp']
+        self.handlers = []
+        self.getHandlerTypes()
+        
+        #self.handlers = ['auto','sasdata','temp']
+        
+        self.options = d_types
         
         self.choices = {}
-        self.options = d_types
         
         self.setWindowTitle('Handler')
         self.root = root
         #self.root.hide()
         self.main_layout = QGridLayout(self)  
         
-        #self.finish_button = QPushButton(self,text='finish')
-        #self.finish_button.setSizeIncrement(1,1)
+        self.finish_button = QPushButton(self,text='finish')
+        self.finish_button.setSizeIncrement(1,1)
         #print(self.handlers)
 
-        #for i,iTyp in enumerate(d_types):
-        #    self.add_option(iTyp,i)
+        for i,iTyp in enumerate(d_types):
+            self.add_option(iTyp,i)
         
-        #self.main_layout.addWidget(self.finish_button,len(d_types)+1,3,1,1)
+        self.main_layout.addWidget(self.finish_button,len(d_types)+1,3,1,1)
  
-        #self.finish_button.clicked.connect(self.finish)
-        self.show()
+        self.finish_button.clicked.connect(self.finish)
+        #self.exec()
 
     def __del__(self):        
         pass
@@ -61,12 +67,25 @@ class AskHandler(QDialog):
         self.main_layout.addWidget(box,pos,3,1,1)    
             
     def finish(self):
-        
+        opt = {}
         for i,iTyp in enumerate(self.choices):
-            self.choices[iTyp] = self.choices[iTyp].currentText()
-        self.root.choices = self.choices    
+            opt[iTyp] = self.choices[iTyp].currentText()
+        #self.send.emit(opt)
+        #print('choices in askhandler: ')
+        #self.choices
+        self.root.addChoices(opt)    
         
-        #self.destroy()
+        self.done(QDialog.Accepted)
+        
+    def getHandlerTypes(self):
+        list_dir = []
+        for iItem in os.walk('handler/reader/'):
+            list_dir.append(iItem)
+        print(list_dir)
+        for iItem in list_dir:
+            for iFile in iItem[2]:
+                self.handlers.append(iFile.split('_')[0])
+        
         
 def main():
         # Create an PyQT5 application object.
