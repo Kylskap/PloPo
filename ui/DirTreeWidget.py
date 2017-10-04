@@ -90,6 +90,12 @@ class DirTreeWidget(QTreeWidget):
     #def mouseReleaseEvent(self,e):   ## setting and unsetting does not work correctly anymore when this is used
     #    print('Mouse Button released')
     #    self.root.list_stepWindows[0].renewLists()
+    
+    def savestring(self):
+        print('bin in savestring von DirTreeWidget')
+        
+    def load_from_string(self,savestring):
+        print('lade von savestring: ',savestring)
         
 
     def get_ItemPath(self,item):

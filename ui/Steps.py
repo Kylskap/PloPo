@@ -10,6 +10,7 @@ Created on Sat Apr 15 00:15:10 2017
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import json
 import PyQt5
 from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton, QHBoxLayout, QVBoxLayout, QLabel, QComboBox, QLineEdit
 
@@ -54,14 +55,15 @@ class Loop(QWidget):
         self.Steps.insert(number,newStep)
         self.numerateSteps()
     
-    def replaceStep(self,OldStep,number,KindOfStep):
+    def replaceStep(self,OldStep,KindOfStep):
         
         if KindOfStep+'Step' in sys.modules[__name__].__dict__:
             newStep=sys.modules[__name__].__dict__[KindOfStep+'Step'](self)
         else:
             newStep=AbstractStep(self, KindOfStep)
-        self.StepBox.insertWidget(number,newStep)
-        self.Steps.insert(number,newStep)
+        newStep.KindOfStep=KindOfStep
+        self.StepBox.insertWidget(OldStep.number,newStep)
+        self.Steps.insert(OldStep.number,newStep)
         self.removeWidget(OldStep)
         self.numerateSteps()
         
@@ -89,12 +91,22 @@ class Loop(QWidget):
                  self.root.adjustSize()
         else:
             pass
+        
+    def savestring(self):
+        self.savelist=[]
+        for i in range(len(self.Steps)):
+            self.savelist.append([self.Steps[i].KindOfStep,self.Steps[i].savestr()])
+        self.savestr=json.dumps(self.savelist)
+        return(self.savestr)      
+        
+    def load_from_string(self,savestring):
+        print(type(self),savestring)
+        
 
 class MainLoop(Loop): ## like Loop but containing Lists with all usable Datasets, Lists, Variables, 
     def __init__(self, root=None):
         Loop.__init__(self,root)
         self.MainLoop=self
-        print('MainLoop initialized')
         self.renewLists()
 
     def renewLists(self):
@@ -108,7 +120,17 @@ class MainLoop(Loop): ## like Loop but containing Lists with all usable Datasets
     def mousePressEvent(self,e):
          self.renewLists()
     def mouseReleaseEvent(self,e):
-         self.renewLists()
+         self.renewLists() 
+        
+    def load_from_string(self,savestring):
+        for Step in self.Steps:
+            self.removeWidget(Step)
+        savelist=json.loads(str(savestring))
+        for i in range(len(savelist)-1):
+            self.insertStep(i)
+        for i in range(len(savelist)):
+            self.replaceStep(self.Steps[i],savelist[i][0])
+            self.Steps[i].load_from_string(savelist[i][1])
 
 
 class Step(QWidget):
@@ -164,6 +186,18 @@ class Step(QWidget):
 
     def renew(self):
         pass
+    
+    def savestr(self):
+        savedict={}
+        for attr in self.__dict__:
+            if(type(getattr(self,attr))==QLineEdit):
+                savedict[attr]=['QLineEdit',getattr(self,attr).text()]
+            if(type(getattr(self,attr))==Loop) and attr!='root':
+                savedict[attr]=['Loop',getattr(self,attr).Steps[0].savestr()]
+        return(json.dumps([self.KindOfStep,json.dumps(savedict)]))
+        
+    def load_from_string(self,savestring):
+        print(type(self),savestring)
 
 class LoopStep(Step):
     def __init__(self, root):
@@ -174,18 +208,19 @@ class LoopStep(Step):
         self.StepLabel.setText('Loop over')
         self.WhichLoop=QComboBox()
         self.HBox.insertWidget(2,self.WhichLoop)
-        print(type(self))
         self.WhichLoop.addItems(list(self.MainLoop.Datasets.keys())) # TODO Dataset1 should be replaced with the names of all Datasets, when there are more
     def renew(self):
         self.WhichLoop.clear()
         self.WhichLoop.addItems(list(self.MainLoop.Datasets.keys()))
         for step_i in self.Loop.Steps:
             step_i.renew()
+            
 
 
 class ReplaceStep(Step):
     def __init__(self, root):
         Step.__init__(self, root)
+        self.KindOfStep='Replace'
         self.MenuButton=QComboBox()
         ## find names of functions (all classes in step_functions.py)
         FunctionNames=[]
@@ -198,7 +233,7 @@ class ReplaceStep(Step):
         self.MenuButton.activated.connect(self.ReplaceSelf)
 
     def ReplaceSelf(self):
-        self.root.replaceStep(self,self.number,self.MenuButton.currentText())
+        self.root.replaceStep(self,self.MenuButton.currentText())
 
 class AbstractStep(Step):
     def __init__(self, root, KindOfStep):
@@ -211,6 +246,8 @@ class AbstractStep(Step):
             if Arg[1]=='str':
                 setattr(self,Arg[0]+'_Edit',QLineEdit())
                 self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Edit'))
+                if len(Arg)>2:
+                    getattr(self,Arg[0]+'_Edit').setText(Arg[2])
                 setattr(self,Arg[0]+'_Label',QLabel(Arg[0]))
                 self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Label'))
 

@@ -35,7 +35,7 @@ class create_Array_Variable:
     def __init__(self,step):
 
         self.step=step
-        self.ArgumentList=[['Variable_Name','str'],['Column','Columnname']] ## List in order to keep ordering
+        self.ArgumentList=[['Variable_Name','str','x'],['Column','Columnname']] ## List in order to keep ordering
     def function(self,routine):
         self.routine=routine
         print(datLoad.datLoad(self.step.MainLoop.Datasets['Dataset1'][0]).data[self.step.Column_Combo.currentText()])
@@ -48,16 +48,27 @@ class create_Array_Variable:
 class Plot:
     def __init__(self,step):
         self.step=step
-        self.ArgumentList=[['X_Var','str'],['Y_Var','str']]
+        self.ArgumentList=[['X_Var','str','x'],['Y_Var','str','y'],['Figure','str','1'],['SubPlt','str','111']]
 
     def function(self,routine):
         self.routine=routine
+        plt.figure(self.step.Figure_Edit.text())
+        plt.subplot(self.step.SubPlt_Edit.text())
         plt.plot(getattr(self.routine,self.step.X_Var_Edit.text()),getattr(self.routine,self.step.Y_Var_Edit.text()))
+
+class Show_Plots:
+    def __init__(self,step):
+        self.step=step
+        self.ArgumentList=[]
+
+    def function(self,routine):
+        self.routine=routine
         plt.show()
 
 class fit_Function:
     def __init__(self,step):
         self.step=step
+        self.ArgumentList=[['Function','str','x**2'],['List of initial values','str','[1,1]']] ## List in order to keep ordering
     def function(self,routine):
         self.routine=routine
         print('Not implemented so far')

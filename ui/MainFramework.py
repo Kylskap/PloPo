@@ -8,6 +8,7 @@ Created on Thu Apr 27 18:30:32 2017
 import os, sys
 
 import numpy as np
+import json
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -120,12 +121,12 @@ class MainFramework(QMainWindow):
         self.read_button = QPushButton(QIcon(self.home+'ui/icons/Play-64.png'),'Play',self)
         self.read_button.setMinimumSize(10,10)
         self.read_button.clicked.connect(self.do_routine)
-        open_button = QPushButton(QIcon(self.home+'ui/icons/Open-Folder-64.png'),'Open',self)
-        open_button.setMinimumSize(10,10)
-        #self.open_button.clicked.connect(self.ask_WorkingDirectory)
-        save_button = QPushButton(QIcon(self.home+r'ui/icons/Save-64.png'),'Save',self)
-        save_button.setMinimumSize(10,10)
-        #self.connect(save_button, SIGNAL('clicked()'),self.save)   
+        self.open_button = QPushButton(QIcon(self.home+'ui/icons/Open-Folder-64.png'),'Open',self)
+        self.open_button.setMinimumSize(10,10)
+        self.open_button.clicked.connect(self.load_temp)
+        self.save_button = QPushButton(QIcon(self.home+r'ui/icons/Save-64.png'),'Save',self)
+        self.save_button.setMinimumSize(10,10)
+        self.save_button.clicked.connect(self.save_all) 
         export_button = QPushButton(QIcon(self.home+r'ui/icons/Export-64.png'),'Export',self)
         export_button.setMinimumSize(10,10)
         #self.connect(export_button, SIGNAL('clicked()'),self.export)    
@@ -135,8 +136,8 @@ class MainFramework(QMainWindow):
         #self.anamode_box.currentIndexChanged.connect(set_AnaMode)
         #self.root.connect(self.anamode_box,SIGNAL('currentIndexChanged(int)'),set_AnaMode)
         self.label_directory = QLabel(self.working_dir)
-        self.toolbar.addWidget(open_button)
-        self.toolbar.addWidget(save_button)
+        self.toolbar.addWidget(self.open_button)
+        self.toolbar.addWidget(self.save_button)
         self.toolbar.addWidget(export_button)
         self.toolbar.addWidget(import_button)
         self.toolbar.addSeparator()
@@ -188,5 +189,34 @@ class MainFramework(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.centerdock)
 
     def do_routine(self):
-        
         routine(self)
+
+    def save_all(self):
+        SaveDict={}
+        SaveDict['data_viewer']=[str(type(self.data_viewer)),self.data_viewer.savestring()]
+        for i in range(len(self.list_stepWindows)):
+            SaveDict['list_stepWindows_'+str(i)]=[str(type(self.list_stepWindows[i])),self.list_stepWindows[i].savestring()]
+        SaveFile = open("temp.plopo", "w")
+        SaveFile.write(json.dumps(SaveDict))
+        SaveFile.close()
+
+    def load_temp(self):
+        print('lade von temp')
+        self.load_from('temp.plopo')
+
+    def load_from(self,filename):
+        SaveFile = open(filename,'r')
+        SaveString = SaveFile.read()
+        SaveFile.close()
+        SaveDict = json.loads(SaveString)
+        self.data_viewer.load_from_string(json.dumps(SaveDict['data_viewer'][1]))
+        ## reload step Windows
+        del self.list_stepWindows
+        self.list_stepWindows=[]
+        self.list_stepWindows.append(Steps.MainLoop(root=self))
+        self.centerdock.setWidget(self.list_stepWindows[0])
+        self.list_stepWindows[0].load_from_string(SaveDict['list_stepWindows_0'][1])
+        
+        
+        
+

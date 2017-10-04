@@ -110,6 +110,9 @@ class MainLoop(Loop): ## like Loop but containing Lists with all usable Datasets
     def mouseReleaseEvent(self,e):
          self.renewLists()
 
+    def sevestring(self):
+        print('bin in savestring von MainLoop')
+
 
 class Step(QWidget):
     def __init__(self, root):
@@ -168,7 +171,7 @@ class Step(QWidget):
 class LoopStep(Step):
     def __init__(self, root):
         Step.__init__(self, root)
-        self.function=step_functions.Loop        
+        self.function=step_functions.Loop(self)        
         self.Loop=Loop(root)
         self.HBox.insertWidget(2,self.Loop)
         self.StepLabel.setText('Loop over')
@@ -211,6 +214,8 @@ class AbstractStep(Step):
             if Arg[1]=='str':
                 setattr(self,Arg[0]+'_Edit',QLineEdit())
                 self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Edit'))
+                if len(Arg)>2:
+                    getattr(self,Arg[0]+'_Edit').setText(Arg[2])
                 setattr(self,Arg[0]+'_Label',QLabel(Arg[0]))
                 self.HBox.insertWidget(3,getattr(self,Arg[0]+'_Label'))
 
