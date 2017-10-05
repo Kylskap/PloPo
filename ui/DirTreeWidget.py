@@ -93,6 +93,7 @@ class DirTreeWidget(QTreeWidget):
     
     def savestring(self):
         print('bin in savestring von DirTreeWidget')
+        return('savestromg')
         
     def load_from_string(self,savestring):
         print('lade von savestring: ',savestring)

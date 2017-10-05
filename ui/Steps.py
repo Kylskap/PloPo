@@ -95,12 +95,19 @@ class Loop(QWidget):
     def savestring(self):
         self.savelist=[]
         for i in range(len(self.Steps)):
-            self.savelist.append([self.Steps[i].KindOfStep,self.Steps[i].savestr()])
-        self.savestr=json.dumps(self.savelist)
-        return(self.savestr)      
+            self.savelist.append([self.Steps[i].KindOfStep,self.Steps[i].savestring()])
+        savestring=json.dumps(self.savelist)
+        return(savestring)      
         
     def load_from_string(self,savestring):
-        print(type(self),savestring)
+        for Step in self.Steps:
+            self.removeWidget(Step)
+        savelist=json.loads(savestring)
+        for i in range(len(savelist)-1):
+            self.insertStep(i)
+        for i in range(len(savelist)):
+            self.replaceStep(self.Steps[i],savelist[i][0])
+            self.Steps[i].load_from_string(savelist[i][1])
         
 
 class MainLoop(Loop): ## like Loop but containing Lists with all usable Datasets, Lists, Variables, 
@@ -122,15 +129,7 @@ class MainLoop(Loop): ## like Loop but containing Lists with all usable Datasets
     def mouseReleaseEvent(self,e):
          self.renewLists() 
         
-    def load_from_string(self,savestring):
-        for Step in self.Steps:
-            self.removeWidget(Step)
-        savelist=json.loads(str(savestring))
-        for i in range(len(savelist)-1):
-            self.insertStep(i)
-        for i in range(len(savelist)):
-            self.replaceStep(self.Steps[i],savelist[i][0])
-            self.Steps[i].load_from_string(savelist[i][1])
+    
 
 
 class Step(QWidget):
@@ -187,17 +186,33 @@ class Step(QWidget):
     def renew(self):
         pass
     
-    def savestr(self):
+    def savestring(self):
         savedict={}
         for attr in self.__dict__:
             if(type(getattr(self,attr))==QLineEdit):
                 savedict[attr]=['QLineEdit',getattr(self,attr).text()]
+            
+            if(type(getattr(self,attr))==QComboBox):
+                savedict[attr]=['QComboBox',getattr(self,attr).currentText()]
+                
             if(type(getattr(self,attr))==Loop) and attr!='root':
-                savedict[attr]=['Loop',getattr(self,attr).Steps[0].savestr()]
+                savedict[attr]=['Loop',getattr(self,attr).savestring()]
+                
         return(json.dumps([self.KindOfStep,json.dumps(savedict)]))
         
     def load_from_string(self,savestring):
-        print(type(self),savestring)
+        savedict=json.loads(json.loads(savestring)[1])
+        for key in savedict:
+            if savedict[key][0]=='QLineEdit' and hasattr(self,key):
+                getattr(self,key).setText(savedict[key][1])
+                
+            if savedict[key][0]=='QComboBox' and hasattr(self,key):
+                getattr(self,key).setCurrentIndex(getattr(self,key).findText(savedict[key][1]))
+                    
+            if savedict[key][0]=='Loop' and hasattr(self,key):
+                getattr(self,key).load_from_string(savedict[key][1])
+                
+            
 
 class LoopStep(Step):
     def __init__(self, root):
@@ -214,6 +229,7 @@ class LoopStep(Step):
         self.WhichLoop.addItems(list(self.MainLoop.Datasets.keys()))
         for step_i in self.Loop.Steps:
             step_i.renew()
+            
             
 
 
